@@ -1,0 +1,7 @@
+.env
+node_modules/
+.vscode/
+plutio_token.json
+
+toggl-data.json
+
