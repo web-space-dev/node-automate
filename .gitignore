@@ -2,6 +2,6 @@
 node_modules/
 .vscode/
 plutio_token.json
-
+dist/
 toggl-data.json
 
