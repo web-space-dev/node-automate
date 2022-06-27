@@ -17,11 +17,11 @@ import {
 export const buildTimeEntry = (item: ITogglEntry): IPlutioEntry => {
   return {
     title: `${item.project} - ${item.description}`,
-    startedAt: item.start.toISOString(),
-    stoppedAt: item.end.toISOString(),
-    duration: item.dur,
+    startedAt: new Date(item.start).toISOString(),
+    stoppedAt: new Date(item.end).toISOString(),
     isManualTime: true,
-    billingRate: parseInt(process.env.PLUTIO_BILLING_RATE, 10),
+    billingRate: parseInt(config.PLUTIO_BILLING_RATE, 10),
+    categoryId: config.PLUTIO_CATEGORY_ID,
   };
 };
 
@@ -56,7 +56,7 @@ export const sortDataIntoProjects = (
 };
 
 export const fetchData = (): Promise<ITogglData> => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const tags = {
       billable: config.TOGGL_BILLABLE_TAG,
       billed: config.TOGGL_BILLED_TAG,
@@ -69,26 +69,34 @@ export const fetchData = (): Promise<ITogglData> => {
 
     const username = process.env.TOGGL_API_KEY;
     const password = "api_token";
-    //   const auth = btoa(`${username}:${password}`);
-    // const auth = Buffer.from(`${username}:${password}`, "base64").toString();
+
     const auth = btoa(`${username}:${password}`);
-    axios
-      .get<ITogglData>(
+
+    try {
+      const response = await axios.get<ITogglData>(
         `https://api.track.toggl.com/reports/api/v2/details?workspace_id=${config.TOGGL_WORKSPACE_ID}&since=${since}&until=${until}&user_agent=api_test&tag_ids=${tags.billable}`,
         {
           headers: {
             Authorization: `Bearer ${auth}`,
           },
         }
-      )
-      .then((response) => {
-        console.log(JSON.stringify(response));
-        //@ts-ignore
-        resolve(JSON.stringify(response.data));
-      })
-      .catch((error) => {
-        console.log("Error fetching toggl data", error);
-        reject(error);
-      });
+      );
+      resolve(response.data);
+    } catch (err) {
+      console.log("Error fetching toggl data", err);
+      reject(err);
+    }
   });
 };
+
+const updateTogglEntry = (id: string): Promise<boolean> => {
+  return new Promise(async(resolve, reject) => {
+
+
+    fetch("https://api.track.toggl.com/api/v9/workspaces/{workspace_id}/time_entries/{time_entry_id}", {
+  method: "PUT",
+  
+    }
+  })
+}
+

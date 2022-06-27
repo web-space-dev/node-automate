@@ -72,9 +72,11 @@ export interface IPlutioEntry {
   title: string;
   startedAt: string;
   stoppedAt: string;
-  duration: number;
+  duration?: number;
   isManualTime: boolean;
   billingRate: number;
+  categoryId: string;
+  updated?: boolean;
 }
 
 /**

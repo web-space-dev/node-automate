@@ -13,6 +13,7 @@ const config = {
   PLUTIO_CLIENT_SECRET: process.env.PLUTIO_CLIENT_SECRET,
   PLUTIO_BUSINESS_DOMAIN: process.env.PLUTIO_BUSINESS_DOMAIN,
   PLUTIO_BILLING_RATE: process.env.PLUTIO_BILLING_RATE,
+  PLUTIO_CATEGORY_ID: process.env.PLUTIO_CATEGORY_ID,
 };
 
 export default config;

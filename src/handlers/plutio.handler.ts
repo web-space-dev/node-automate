@@ -1,77 +1,94 @@
-import { IPlutioData, ITokenObj } from "../interfaces";
-
 import axios from "axios";
 import qs from "qs";
-import fs from "fs";
 
-const path: string = "./plutio_token.json";
+import config from "../../config/config";
+import { IPlutioEntry, ITokenObj } from "../interfaces";
+import { checkForFile, saveTokenToFile } from "./file.handler";
 
-const checkForFile = () => {
-  if (fs.existsSync(path)) {
-    console.log("!!!!hello");
-
-    fs.readFile(path, "utf8", (err, data) => {
-      if (err) {
-        console.error(err);
-        return refreshToken();
+/**
+ * Checks if an existing access token exists and returns it
+ * If not, fetches a new access token from plutio API
+ *
+ * @returns String - returns the plutio access token
+ */
+export const refreshToken = (): Promise<string> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const existingAccessToken = await checkForFile();
+      if (existingAccessToken) {
+        return resolve(existingAccessToken);
       }
-      const result = JSON.parse(data);
 
-      if (new Date(result.access_token_expires) > new Date()) {
-        return result.access_token;
-      }
+      const data = qs.stringify({
+        client_id: config.PLUTIO_CLIENT_ID,
+        client_secret: config.PLUTIO_CLIENT_SECRET,
+        grant_type: "client_credentials",
+      });
 
-      return refreshToken();
-    });
-  }
-  return refreshToken();
-};
-
-const refreshToken = () => {
-  const data = qs.stringify({
-    client_id: process.env.PLUTIO_CLIENT_ID,
-    client_secret: process.env.PLUTIO_CLIENT_SECRET,
-    grant_type: "client_credentials",
-  });
-
-  axios
-    .post<IPlutioData>(
-      "https://api.plutio.com/v1.8/oauth/token",
-      {},
-      {
+      const response = await axios({
+        method: "post",
+        url: "https://api.plutio.com/v1.8/oauth/token",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         data,
-      }
-    )
-    .then((response) => {
-      console.log(JSON.stringify(response.data));
+      });
+
       const obj: ITokenObj = {
         access_token: response.data.accessToken,
-        access_token_expires: response.data.accessTokenExpiresAt.toISOString(),
+        access_token_expires: new Date(
+          response.data.accessTokenExpiresAt
+        ).toISOString(),
       };
-      saveTokenToFile(obj);
-      return response.data.accessToken;
-    })
-    .catch((error) => {
-      console.log(error);
-      return false;
-    });
+      await saveTokenToFile(obj);
+      resolve(response.data.accessToken);
+    } catch (err) {
+      console.log("Error fetching plutio access token: ", err);
+      reject(err);
+    }
+  });
 };
 
-function saveTokenToFile(obj: ITokenObj) {
-  fs.writeFile(path, JSON.stringify(obj), (err) => {
-    if (err) {
-      console.error(err);
+export const createEntry = (
+  token: string,
+  entry: IPlutioEntry
+): Promise<boolean> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = JSON.stringify(entry);
+      await axios({
+        method: "post",
+        url: "https://api.plutio.com/v1.8/time-tracks",
+        headers: {
+          Business: config.PLUTIO_BUSINESS_DOMAIN,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        data,
+      });
+      resolve(true);
+    } catch (err) {
+      console.log("Error: Could not create Plutio Time entry", err);
+      resolve(false);
     }
-    // file written successfully
   });
-}
+};
 
-// let token = checkForFile();
+// let config = {
+// method: 'post',
+// url: 'https://api.plutio.com/v1.8/time-tracks',
+// headers: {
+//   'Business': 'webspace',
+//   'Content-Type': 'application/json',
+//   'Authorization': 'Bearer 8ccdedc411ce9e329074cc044e45310d6b0b6368'
+// },
+//   data : data
+// };
 
-// if (!token) {
-//   console.log("Could not generate client access token");
-//   return;
-// }
+// axios(config)
+// .then((response) => {
+//   console.log(JSON.stringify(response.data));
+// })
+// .catch((error) => {
+//   console.log(error);
+// });
