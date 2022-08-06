@@ -15,13 +15,24 @@ import {
  * @returns {Object} entry
  */
 export const buildTimeEntry = (item: ITogglEntry): IPlutioEntry => {
+  const rgx = new RegExp(/name:\w{2,}.\w{2,}/);
+  let title = item.project;
+
+  item.tags.map((tag) => {
+    const match = tag.match(rgx);
+    if (match) title = tag.split(":")[1];
+  });
+
   return {
-    title: `${item.project} - ${item.description}`,
-    startedAt: new Date(item.start).toISOString(),
-    stoppedAt: new Date(item.end).toISOString(),
-    isManualTime: true,
-    billingRate: parseInt(config.PLUTIO_BILLING_RATE, 10),
-    categoryId: config.PLUTIO_CATEGORY_ID,
+    id: item.id,
+    plutioEntry: {
+      title: `${title} - ${item.description}`,
+      startedAt: new Date(item.start).toISOString(),
+      stoppedAt: new Date(item.end).toISOString(),
+      isManualTime: true,
+      billingRate: parseInt(config.PLUTIO_BILLING_RATE, 10),
+      categoryId: config.PLUTIO_CATEGORY_ID,
+    },
   };
 };
 
@@ -41,6 +52,7 @@ export const sortDataIntoProjects = (
     if (projectI === -1) {
       const project: ITogglProjectObj = {
         id: item.pid,
+        toggleId: item.id,
         entries: [],
         duration: 0,
       };
@@ -83,20 +95,35 @@ export const fetchData = (): Promise<ITogglData> => {
       );
       resolve(response.data);
     } catch (err) {
-      console.log("Error fetching toggl data", err);
+      console.log("Error fetching toggl data", err.message);
       reject(err);
     }
   });
 };
 
-const updateTogglEntry = (id: string): Promise<boolean> => {
-  return new Promise(async(resolve, reject) => {
+export const updateTogglEntry = (id: number): Promise<boolean> => {
+  return new Promise(async (resolve, reject) => {
+    const username = process.env.TOGGL_API_KEY;
+    const password = "api_token";
 
+    const auth = btoa(`${username}:${password}`);
+    const data = JSON.stringify({
+      time_entry: {
+        tags: ["Billable"],
+      },
+    });
+    try {
+      await axios.put(`https://api.track.toggl.com/api/v2/time_entries/${id}`, {
+        headers: {
+          Authorization: `Bearer ${auth}`,
+        },
 
-    fetch("https://api.track.toggl.com/api/v9/workspaces/{workspace_id}/time_entries/{time_entry_id}", {
-  method: "PUT",
-  
+        data,
+      });
+      resolve(true);
+    } catch (err) {
+      console.log("Error fetching toggl data", err.message);
+      reject(false);
     }
-  })
-}
-
+  });
+};

@@ -43,13 +43,11 @@ app.use(cors());
  */
 app.use("/dist", express.static(path.join(CURRENT_WORKING_DIR, "dist")));
 
-main();
-
 /**
  * Mount Routes
  *
  */
-// app.use("/", userRoutes);
+app.get("/api/billable", main);
 // app.use("/", threadRoutes);
 // app.use("/", authRoutes);
 // app.use("/", messageRoutes);

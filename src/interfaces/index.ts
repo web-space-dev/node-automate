@@ -3,6 +3,7 @@
  */
 export interface ITogglProjectObj {
   id: number;
+  toggleId: number;
   entries: IPlutioEntry[];
   duration: number;
 }
@@ -69,14 +70,18 @@ export interface TogglError {
  * Time Entry for Plutio
  */
 export interface IPlutioEntry {
-  title: string;
-  startedAt: string;
-  stoppedAt: string;
-  duration?: number;
-  isManualTime: boolean;
-  billingRate: number;
-  categoryId: string;
+  id: number;
   updated?: boolean;
+  plutioEntry: {
+    title: string;
+    startedAt: string;
+    stoppedAt: string;
+    duration?: number;
+    isManualTime: boolean;
+    billingRate: number;
+    categoryId: string;
+    updated?: boolean;
+  };
 }
 
 /**

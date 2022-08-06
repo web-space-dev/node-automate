@@ -55,7 +55,7 @@ export const createEntry = (
 ): Promise<boolean> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const data = JSON.stringify(entry);
+      const data = JSON.stringify(entry.plutioEntry);
       await axios({
         method: "post",
         url: "https://api.plutio.com/v1.8/time-tracks",
