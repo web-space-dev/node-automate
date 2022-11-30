@@ -14,6 +14,7 @@ const config = {
   PLUTIO_BUSINESS_DOMAIN: process.env.PLUTIO_BUSINESS_DOMAIN,
   PLUTIO_BILLING_RATE: process.env.PLUTIO_BILLING_RATE,
   PLUTIO_CATEGORY_ID: process.env.PLUTIO_CATEGORY_ID,
+  TOGGL_TO_BE_BILLED_TAG: process.env.TOGGL_TO_BE_BILLED_TAG,
 };
 
 export default config;

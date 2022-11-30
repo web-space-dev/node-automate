@@ -56,7 +56,7 @@ export const createEntry = (
   return new Promise(async (resolve, reject) => {
     try {
       const data = JSON.stringify(entry.plutioEntry);
-      await axios({
+      const result = await axios({
         method: "post",
         url: "https://api.plutio.com/v1.8/time-tracks",
         headers: {
@@ -66,7 +66,8 @@ export const createEntry = (
         },
         data,
       });
-      resolve(true);
+
+      resolve(result ? true : false);
     } catch (err) {
       console.log("Error: Could not create Plutio Time entry", err);
       resolve(false);

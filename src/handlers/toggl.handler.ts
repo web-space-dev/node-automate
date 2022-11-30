@@ -72,9 +72,10 @@ export const fetchData = (): Promise<ITogglData> => {
     const tags = {
       billable: config.TOGGL_BILLABLE_TAG,
       billed: config.TOGGL_BILLED_TAG,
+      to_be_billed: config.TOGGL_TO_BE_BILLED_TAG,
     };
     const now = new Date();
-    const since = new Date(now.getFullYear(), now.getMonth())
+    const since = new Date(now.getFullYear(), now.getMonth() - 2)
       .toISOString()
       .split("T")[0]; // Beginning of current month
     const until = new Date().toISOString().split("T")[0]; // Now
@@ -86,10 +87,10 @@ export const fetchData = (): Promise<ITogglData> => {
 
     try {
       const response = await axios.get<ITogglData>(
-        `https://api.track.toggl.com/reports/api/v2/details?workspace_id=${config.TOGGL_WORKSPACE_ID}&since=${since}&until=${until}&user_agent=api_test&tag_ids=${tags.billable}`,
+        `https://api.track.toggl.com/reports/api/v2/details?workspace_id=${config.TOGGL_WORKSPACE_ID}&since=${since}&until=${until}&user_agent=api_test&tag_ids=${tags.to_be_billed}`,
         {
           headers: {
-            Authorization: `Bearer ${auth}`,
+            Authorization: `Basic ${auth}`,
           },
         }
       );
@@ -106,20 +107,44 @@ export const updateTogglEntry = (id: number): Promise<boolean> => {
     const username = process.env.TOGGL_API_KEY;
     const password = "api_token";
 
-    const auth = btoa(`${username}:${password}`);
+    // const auth = btoa(`${username}:${password}`);
+    const auth = {
+      username: process.env.TOGGL_API_KEY,
+      password: "api_token",
+    };
     const data = JSON.stringify({
       time_entry: {
-        tags: ["Billable"],
+        tags: ["Billed-API"],
       },
     });
-    try {
-      await axios.put(`https://api.track.toggl.com/api/v2/time_entries/${id}`, {
-        headers: {
-          Authorization: `Bearer ${auth}`,
-        },
 
-        data,
-      });
+    // const axiosData = {
+    //   method: "put",
+    //   url: "https://api.track.toggl.com/api/v8/time_entries/2598848741",
+    //   headers: {
+    //     Authorization: "Basic e3thcGlfdG9rZW59fTphcGlfdG9rZW4=",
+    //     "Content-Type": "application/json",
+    //   },
+    //   data,
+    // };
+
+    try {
+      // const response = await axios(axiosData);
+      const response = await axios.put(
+        `https://api.track.toggl.com/api/v8/time_entries/${id}`,
+        {
+          headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/json",
+          },
+
+          data,
+        },
+        {
+          auth,
+        }
+      );
+      console.log(response);
       resolve(true);
     } catch (err) {
       console.log("Error fetching toggl data", err.message);

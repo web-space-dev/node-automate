@@ -31,20 +31,43 @@ const createAndUpdateEntries = async (
   token: string,
   sortedData: ITogglProjectObj[]
 ) => {
-  // return new Promise(async (resolve) => {
-  const response: IPlutioEntry[] = [];
-  return Promise.all(
-    sortedData.map(async (item) => {
-      item.entries.forEach(async (entry) => {
-        const updated = await createEntry(token, entry);
+  return new Promise(async (resolve, reject) => {
+    const response: IPlutioEntry[] = [];
+    try {
+      for await (const item of sortedData) {
+        for await (const entry of item.entries) {
+          const updated = await createEntry(token, entry);
 
-        if (!updated) return;
+          if (!updated) return;
 
-        entry.updated = await updateTogglEntry(entry.id);
-        response.push(entry);
-      });
-    })
-  ).then(() => {
-    return response;
+          entry.updated = true;
+          // await updateTogglEntry(entry.id);
+          response.push(entry);
+        }
+      }
+
+      resolve(response);
+    } catch (err) {
+      console.log("createandUpdate error", err);
+      reject("err");
+    }
+
+    // sortedData.map((item) => {
+    //   item.entries.map(async(entry) => {
+    //     try {
+    //     const updated = await createEntry(token, entry);
+
+    //     if (!updated) return;
+
+    //     entry.updated = await updateTogglEntry(entry.id);
+    //     response.push(entry);
+    //     } catch(err) {
+
+    //     }
+    //   });
+    // });
   });
+  // ).then(() => {
+  //   return response;
+  // });
 };
