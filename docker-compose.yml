@@ -1,0 +1,16 @@
+version: "1"
+services:
+  node-express-docker:
+    environment:
+      - NODE_ENV=production
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    container_name: plutio-toggl-automate
+    expose:
+      - "3000"
+    ports:
+      - "4000:3000"
+    command: npm run start
