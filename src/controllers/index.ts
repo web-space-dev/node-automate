@@ -1,8 +1,4 @@
-import {
-  fetchData,
-  sortDataIntoProjects,
-  updateTogglEntry,
-} from "../handlers/toggl.handler";
+import { fetchData, sortDataIntoProjects } from "../handlers/toggl.handler";
 import {
   createEntry,
   deleteEntry,
@@ -76,10 +72,6 @@ export const clearEntries = async (req: Request, res: Response) => {
       message: `${result.length} entries deleted`,
       data: result,
     });
-
-    // const response = await createAndUpdateEntries(token, sortedData);
-
-    // res.status(200).json(response);
   } catch (err) {
     console.log("System Error: ", err);
     res.status(500).send("Error");

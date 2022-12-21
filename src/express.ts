@@ -50,8 +50,4 @@ app.use("/dist", express.static(path.join(CURRENT_WORKING_DIR, "dist")));
 app.get("/api/billable", main);
 app.get("/api/clear", clearEntries);
 
-// app.use("/", threadRoutes);
-// app.use("/", authRoutes);
-// app.use("/", messageRoutes);
-
 export default app;

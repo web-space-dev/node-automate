@@ -118,18 +118,7 @@ export const updateTogglEntry = (id: number): Promise<boolean> => {
       },
     });
 
-    // const axiosData = {
-    //   method: "put",
-    //   url: "https://api.track.toggl.com/api/v8/time_entries/2598848741",
-    //   headers: {
-    //     Authorization: "Basic e3thcGlfdG9rZW59fTphcGlfdG9rZW4=",
-    //     "Content-Type": "application/json",
-    //   },
-    //   data,
-    // };
-
     try {
-      // const response = await axios(axiosData);
       const response = await axios.put(
         `https://api.track.toggl.com/api/v8/time_entries/${id}`,
         {
