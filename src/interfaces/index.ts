@@ -84,6 +84,29 @@ export interface IPlutioEntry {
   };
 }
 
+export interface IPlutioResponse {
+  _id: string;
+  title: string;
+  billingRate: number;
+  categoryId: string;
+  isManualTime: boolean;
+  startedAt: Date;
+  stoppedAt: Date;
+  time: number;
+  status: string;
+  personId: string;
+  currency: string;
+  costRate: number;
+  costAmount: number;
+  billingAmount: number;
+  billingStatus: string;
+  costStatus: string;
+  createdAt: Date;
+  createdBy: string;
+  businessId: string;
+  updatedAt: Date;
+}
+
 /**
  * For saving the token in the file system
  */

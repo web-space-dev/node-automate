@@ -2,7 +2,7 @@ import axios from "axios";
 import qs from "qs";
 
 import config from "../../config/config";
-import { IPlutioEntry, ITokenObj } from "../interfaces";
+import { IPlutioEntry, IPlutioResponse, ITokenObj } from "../interfaces";
 import { checkForFile, saveTokenToFile } from "./file.handler";
 
 /**
@@ -75,21 +75,47 @@ export const createEntry = (
   });
 };
 
-// let config = {
-// method: 'post',
-// url: 'https://api.plutio.com/v1.8/time-tracks',
-// headers: {
-//   'Business': 'webspace',
-//   'Content-Type': 'application/json',
-//   'Authorization': 'Bearer 8ccdedc411ce9e329074cc044e45310d6b0b6368'
-// },
-//   data : data
-// };
+export const getAllEntries = (token: string): Promise<IPlutioResponse[]> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await axios.get<IPlutioResponse[]>(
+        "https://api.plutio.com/v1.8/time-tracks?billingStatus=unpaid",
+        {
+          headers: {
+            Business: config.PLUTIO_BUSINESS_DOMAIN,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-// axios(config)
-// .then((response) => {
-//   console.log(JSON.stringify(response.data));
-// })
-// .catch((error) => {
-//   console.log(error);
-// });
+      resolve(result.data);
+    } catch (err) {
+      console.log("Error: Could not get Plutio entries", err);
+      resolve(err);
+    }
+  });
+};
+
+export const deleteEntry = (token: string, id: string): Promise<boolean> => {
+  return new Promise(async (resolve, reject) => {
+    const data = JSON.stringify({ _id: id });
+    try {
+      const result = await axios({
+        method: "delete",
+        url: "https://api.plutio.com/v1.8/time-tracks",
+        headers: {
+          Business: config.PLUTIO_BUSINESS_DOMAIN,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        data,
+      });
+
+      resolve(result ? true : false);
+    } catch (err) {
+      console.log("Error: Could not delete Plutio entry", err);
+      resolve(err);
+    }
+  });
+};

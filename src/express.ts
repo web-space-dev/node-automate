@@ -8,7 +8,7 @@ import cookieParser from "cookie-parser";
 import compress from "compression";
 import helmet from "helmet";
 import cors from "cors";
-import { main } from "./controllers";
+import { clearEntries, main } from "./controllers";
 
 /**
  * Declare express app
@@ -48,6 +48,8 @@ app.use("/dist", express.static(path.join(CURRENT_WORKING_DIR, "dist")));
  *
  */
 app.get("/api/billable", main);
+app.get("/api/clear", clearEntries);
+
 // app.use("/", threadRoutes);
 // app.use("/", authRoutes);
 // app.use("/", messageRoutes);

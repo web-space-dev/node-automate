@@ -3,12 +3,16 @@ import {
   sortDataIntoProjects,
   updateTogglEntry,
 } from "../handlers/toggl.handler";
-import { createEntry, refreshToken } from "../handlers/plutio.handler";
+import {
+  createEntry,
+  deleteEntry,
+  getAllEntries,
+  refreshToken,
+} from "../handlers/plutio.handler";
 import { Request, Response } from "express";
 import { IPlutioEntry, ITogglProjectObj } from "../interfaces";
 
 export const main = async (req: Request, res: Response) => {
-  // const response: IPlutioEntry[] = [];
   try {
     // Fetch Toggl data
     const data = await fetchData();
@@ -51,23 +55,33 @@ const createAndUpdateEntries = async (
       console.log("createandUpdate error", err);
       reject("err");
     }
-
-    // sortedData.map((item) => {
-    //   item.entries.map(async(entry) => {
-    //     try {
-    //     const updated = await createEntry(token, entry);
-
-    //     if (!updated) return;
-
-    //     entry.updated = await updateTogglEntry(entry.id);
-    //     response.push(entry);
-    //     } catch(err) {
-
-    //     }
-    //   });
-    // });
   });
-  // ).then(() => {
-  //   return response;
-  // });
+};
+
+export const clearEntries = async (req: Request, res: Response) => {
+  try {
+    // Generate or fetch existing plutio access token
+    const token = await refreshToken();
+
+    // Fetch entires
+    const entires = await getAllEntries(token);
+
+    const result = [];
+    for await (const entry of entires) {
+      const deletedEntry = await deleteEntry(token, entry._id);
+      result.push({ _id: entry._id, success: deletedEntry });
+    }
+
+    res.status(200).json({
+      message: `${result.length} entries deleted`,
+      data: result,
+    });
+
+    // const response = await createAndUpdateEntries(token, sortedData);
+
+    // res.status(200).json(response);
+  } catch (err) {
+    console.log("System Error: ", err);
+    res.status(500).send("Error");
+  }
 };
