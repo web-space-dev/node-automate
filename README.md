@@ -32,3 +32,4 @@ The server has two endpoints:
 4. Run `npm install` to install the dependencies
 5. Run `npm run dev` to run the application in development
 6. Run `npm run build` to build the application
+7. Run `docker-compose up` to run it as a Docker container
