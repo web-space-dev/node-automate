@@ -75,7 +75,7 @@ export const fetchData = (): Promise<ITogglData> => {
       to_be_billed: config.TOGGL_TO_BE_BILLED_TAG,
     };
     const now = new Date();
-    const since = new Date(now.getFullYear(), now.getMonth() - 2)
+    const since = new Date(now.getFullYear(), now.getMonth() - 5)
       .toISOString()
       .split("T")[0]; // Beginning of current month
     const until = new Date().toISOString().split("T")[0]; // Now
